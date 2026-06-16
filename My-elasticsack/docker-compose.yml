@@ -1,31 +1,31 @@
-# /Users/user/Documents/ELK-Stack/docker-compose.yml
+# 這配置要用哪個語法版本
 version: '3.8'
 
-services:
+services: # 開始定義容器內容
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0  # 這邊使用 8.12.0 版本 Elasticsearch
     container_name: database_elastic
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - xpack.security.http.ssl.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    environment:  # 設定環境變數
+      - discovery.type=single-node  # 設定不要找其他Elasticsearch 節點，因為這邊只有一台，ES會一直等待叢集形成
+      - xpack.security.enabled=false  # 關閉帳號密碼驗證
+      - xpack.security.http.ssl.enabled=false  # 不要用HTTPS，改用HTTP
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"  # 最小記憶體：512MB，最大記憶體：512MB
     ports:
       - "9200:9200"
     volumes:
-      - es_data:/usr/share/elasticsearch/data
+      - es_data:/usr/share/elasticsearch/data  # 避免Container 刪掉資料就消失，掛載磁碟
     networks:
-      - log_sharing # 加入公共橋樑
+      - log_sharing # 指定這個 Docker Network
 
   logstash:
-    image: docker.elastic.co/logstash/logstash:8.12.0
+    image: docker.elastic.co/logstash/logstash:8.12.0  # 這邊使用 8.12.0 版本 Logstash
     container_name: my_logstash
     volumes:
-      - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf  # 避免Container 刪掉資料就消失，掛載磁碟
     ports:
       - "5044:5044"
     depends_on:
-      - elasticsearch
+      - elasticsearch  # 先啟動 Elasticsearch，再啟動 Logstash，因為Logstash 依賴 Elasticsearch
     networks:
       - default  # 保留原本的網路
       - elk_bridge # 加入共用網路
@@ -38,7 +38,7 @@ services:
     ports:
       - "5601:5601"
     depends_on:
-      - elasticsearch
+      - elasticsearch  # 先讓啟動 Elasticsearch
     networks:
       - log_sharing # 加入公共橋樑
 
@@ -46,8 +46,8 @@ volumes:
   es_data:
 
 networks:
-  default:
+  default:  # Docker Compose 自動建立
   elk_bridge:
-    external: true
+    external: true 
   log_sharing:
-    external: true # 關鍵：告訴 Docker 這個網路是外面建好的，直接加入即可
+    external: true # 告訴Docker 這個網路是外面建好的，直接加入即可
