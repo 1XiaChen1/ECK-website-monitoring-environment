@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # 【容器 1：前端】被限制在前端網路
+  frontend:
+    image: nginx:alpine
+    container_name: my_frontend
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+    depends_on:
+      - backend
+    networks:
+      - frontend_network  # ★ 僅連接前端網路
+      - log_sharing #將 nginx 連到公共brige，把日誌給Logstash
+
+  # 【容器 2：後端 API】扮演守門員與橋樑
+  backend:
+    image: python:3.11-slim
+    container_name: my_python_backend
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+    command: sh -c "pip install -r requirements.txt && python app.py"
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_HOST=database
+      - DB_USER=admin
+      - DB_PASSWORD=secure_password123
+      - DB_NAME=user_db
+    depends_on:
+      - database
+    networks:
+      - default  # 保留原本的網路
+      - elk_bridge # 加入共用網路
+      - frontend_network  # ★ 連接前端，接收 Nginx 請求
+      - backend_network   # ★ 連接後端，對資料庫進行讀寫
+      - log_sharing #將 Python 連到公共brige，把日誌給Logstash
+
+  # 【容器 3：資料庫】被嚴密保護在後端網路
+  database:
+    image: postgres:15-alpine
+    container_name: my_database
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secure_password123
+      POSTGRES_DB: user_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - backend_network   # ★ 僅連接後端網路，與前端完全隔離
+
+volumes:
+  db_data:
+    name: my_project_db_data
+
+# ★ 定義兩個獨立的虛擬網路
+networks:
+  default:
+  elk_bridge:
+    external: true
+  frontend_network:
+    driver: bridge
+  backend_network:
+    driver: bridge
+    internal: true # 可選設定：強制這個網路無法連上外部網際網路，安全性更高
+  log_sharing:
+    external: true #將網路連到公共brige

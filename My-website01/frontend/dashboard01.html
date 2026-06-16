@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>使用者中心 - 系統首頁</title>
+    <style>
+        /* CSS Reset：清除瀏覽器預設樣式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* 頂部導覽列 (Navbar) */
+        .navbar {
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: fixed; /* 固定在頂部 */
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 50px;
+        }
+
+        .navbar .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0056b3;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 30px; /* 選單項目之間的距離 */
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #0056b3;
+        }
+
+        /* 歡迎區塊 (Hero Section) */
+        .hero {
+            background: linear-gradient(135deg, #0056b3, #007bff);
+            color: white;
+            text-align: center;
+            padding: 120px 20px 80px; /* 上方留出 navbar 的高度 */
+            margin-bottom: 40px;
+        }
+
+        .hero h1 {
+            font-size: 36px;
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        /* 主要內容區塊 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            min-height: 50vh; /* 確保頁面有足夠高度把 footer 推下去 */
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .content-card h2 {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            color: #222;
+        }
+
+        /* 頁尾 (Footer) */
+        .footer {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 50px;
+        }
+
+        /* 簡單的響應式設計 (手機版) */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 15px;
+            }
+            .nav-links {
+                margin-top: 15px;
+                gap: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .hero {
+                padding: 140px 20px 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 頂部導覽列 -->
+    <nav class="navbar">
+        <a href="#" class="logo">我的系統</a>
+        <ul class="nav-links">
+            <li><a href="#">首頁</a></li>
+            <li><a href="#">關於我們</a></li>
+            <li><a href="#">最新消息</a></li>
+            <li><a href="#">聯絡我們</a></li>
+            <li><a href="#">人才招募</a></li>
+        </ul>
+    </nav>
+
+    <!-- 歡迎區塊 -->
+    <section class="hero">
+        <h1>歡迎登入系統</h1>
+        <p>這是您登入後看到的第一個畫面。</p>
+    </section>
+
+    <!-- 主要內容區 -->
+    <div class="container">
+        <div class="content-card">
+            <h2>使用者資訊</h2>
+            <p>您的帳號狀態正常。此區塊未來可以透過 Python 後端，從資料庫讀取並顯示您的個人資料或操作記錄。</p>
+        </div>
+
+        <div class="content-card">
+            <h2>系統公告</h2>
+            <p>目前系統運作正常。Docker 容器架構已成功隔離前端與後端網路，保障資料安全。</p>
+        </div>
+    </div>
+
+    <!-- 頁尾 -->
+    <footer class="footer">
+        <p>&copy; 2026 我的系統專案. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

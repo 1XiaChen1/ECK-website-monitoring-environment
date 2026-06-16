@@ -1,0 +1,53 @@
+# /Users/user/Documents/ELK-Stack/docker-compose.yml
+version: '3.8'
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: database_elastic
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    networks:
+      - log_sharing # 加入公共橋樑
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.12.0
+    container_name: my_logstash
+    volumes:
+      - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    ports:
+      - "5044:5044"
+    depends_on:
+      - elasticsearch
+    networks:
+      - default  # 保留原本的網路
+      - elk_bridge # 加入共用網路
+      - log_sharing # 加入公共橋樑
+      
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.12.0
+    container_name: my_kibana
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - log_sharing # 加入公共橋樑
+
+volumes:
+  es_data:
+
+networks:
+  default:
+  elk_bridge:
+    external: true
+  log_sharing:
+    external: true # 關鍵：告訴 Docker 這個網路是外面建好的，直接加入即可
