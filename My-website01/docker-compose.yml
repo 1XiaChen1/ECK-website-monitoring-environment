@@ -1,28 +1,28 @@
+# 這配置要用哪個語法版本
 version: '3.8'
-
 services:
   # 【容器 1：前端】被限制在前端網路
   frontend:
-    image: nginx:alpine
+    image: nginx:alpine # 使用 Nginx Alpine 版本。（一般 Nginx：100~200MB，Alpine：20MB左右）
     container_name: my_frontend
     ports:
       - "8080:80"
     volumes:
-      - ./frontend:/usr/share/nginx/html
-    depends_on:
+      - ./frontend:/usr/share/nginx/html  # 把本機：./frontend 掛進容器
+    depends_on:  # 先開 Backend 再開 Frontend
       - backend
     networks:
-      - frontend_network  # ★ 僅連接前端網路
-      - log_sharing #將 nginx 連到公共brige，把日誌給Logstash
+      - frontend_network  # 讓 Frontend <-> Backend 可以互相溝通
+      - log_sharing # 讓 Nginx Log 能送到 ELK
 
   # 【容器 2：後端 API】扮演守門員與橋樑
   backend:
     image: python:3.11-slim
     container_name: my_python_backend
-    working_dir: /app
+    working_dir: /app  # 進容器後：預設位置 /app
     volumes:
-      - ./backend:/app
-    command: sh -c "pip install -r requirements.txt && python app.py"
+      - ./backend:/app  # 本機：backend 掛進：/app
+    command: sh -c "pip install -r requirements.txt && python app.py"  # 容器啟動後執行：先安裝套件
     ports:
       - "5000:5000"
     environment:
@@ -30,44 +30,40 @@ services:
       - DB_USER=admin
       - DB_PASSWORD=secure_password123
       - DB_NAME=user_db
-    depends_on:
+    depends_on:  # 先開 PostgreSQL 再開 Flask
       - database
     networks:
       - default  # 保留原本的網路
-      - elk_bridge # 加入共用網路
-      - frontend_network  # ★ 連接前端，接收 Nginx 請求
-      - backend_network   # ★ 連接後端，對資料庫進行讀寫
-      - log_sharing #將 Python 連到公共brige，把日誌給Logstash
+      - frontend_network  # 讓 Frontend <-> Backend 可以互相溝通
+      - backend_network   # 讓 Backend  <-> Database 可以互相溝通
+      - log_sharing # 將 Python 連到公共brige，把日誌給Logstash
 
   # 【容器 3：資料庫】被嚴密保護在後端網路
   database:
-    image: postgres:15-alpine
+    image: postgres:15-alpine # 下載：PostgreSQL 15
     container_name: my_database
-    restart: always
+    restart: always # 如果 PostgreSQL 掛掉：自動重啟 (如：OOM、當機、Server重開)
     environment:
-      POSTGRES_USER: admin
+      POSTGRES_USER: admin  # 建立：admin 帳號。
       POSTGRES_PASSWORD: secure_password123
-      POSTGRES_DB: user_db
+      POSTGRES_DB: user_db  # 建立：user 資料庫
     ports:
       - "5432:5432"
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data  # PostgreSQL真正資料位置，映射到 db_data (Volume)
     networks:
       - backend_network   # ★ 僅連接後端網路，與前端完全隔離
-
-volumes:
+volumes: # 定義Volume 並建立
   db_data:
     name: my_project_db_data
 
-# ★ 定義兩個獨立的虛擬網路
+# 定義三個獨立的虛擬網路
 networks:
   default:
-  elk_bridge:
-    external: true
   frontend_network:
     driver: bridge
   backend_network:
     driver: bridge
     internal: true # 可選設定：強制這個網路無法連上外部網際網路，安全性更高
   log_sharing:
-    external: true #將網路連到公共brige
+    external: true # 將網路連到公共brige

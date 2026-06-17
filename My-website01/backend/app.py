@@ -23,7 +23,7 @@ app = Flask(__name__)
 # 初始化 Logstash 連線設定
 # 'my_logstash' 是我們在公共網路定義的 Logstash 容器名稱，Port 是 5001
 logstash_handler = AsynchronousLogstashHandler(
-    host='10.10.201.113', # Port、iP 設定要注意，這裡是設定電腦的實體iP ⚠️
+    host='host.docker.internal', # Docker 在你電腦上的固定對外橋接 IP：host.docker.internal ，或是可以直接寫本機的實體ip⚠️
     port=5044, 
     database_path=None
 )

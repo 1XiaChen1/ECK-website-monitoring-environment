@@ -28,7 +28,6 @@ services: # 開始定義容器內容
       - elasticsearch  # 先啟動 Elasticsearch，再啟動 Logstash，因為Logstash 依賴 Elasticsearch
     networks:
       - default  # 保留原本的網路
-      - elk_bridge # 加入共用網路
       - log_sharing # 加入公共橋樑
       
 
@@ -47,7 +46,5 @@ volumes:
 
 networks:
   default:  # Docker Compose 自動建立
-  elk_bridge:
-    external: true 
   log_sharing:
     external: true # 告訴Docker 這個網路是外面建好的，直接加入即可
