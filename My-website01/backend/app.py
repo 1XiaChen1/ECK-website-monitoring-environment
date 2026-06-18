@@ -29,7 +29,7 @@ logstash_handler = AsynchronousLogstashHandler(
 )
 # 宣告一個叫做 'flask-backend' 的紀錄器
 logger = logging.getLogger('flask-backend')
-logger.setLevel(logging.INFO) # 設定最低紀錄等級：INFO 都會被記錄。
+logger.setLevel(logging.INFO) # 設定最低以上紀錄等級：INFO 都會被記錄。
 logger.addHandler(logstash_handler) #把 Log 送給：Logstash
 
 # 同時讓 Log 印在 Python 本地的終端機畫面上，方便雙向除錯
@@ -135,7 +135,7 @@ def login():
             return "密碼錯誤，請回上一頁重試", 401
     else:
 
-        # 找不到該使用者，發送警告日誌給 Logstash
+        # 找不到該使用者時，發送警告日誌給 Logstash
         logger.warning(f"Login failed: User {username} does not exist")
 
         return "找不到此使用者", 404
